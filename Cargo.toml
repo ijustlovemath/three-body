@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 num-rational = '0.3'
+num-bigint = '0.3.0'
+num-traits = "0.2.14"
