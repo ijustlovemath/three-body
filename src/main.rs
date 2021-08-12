@@ -5,6 +5,7 @@ extern crate num_traits;
 use num_rational::{Ratio, BigRational};
 use num_bigint::BigInt;
 use std::ops::{Add, Sub, Mul, Neg, Div, AddAssign};
+use num_traits::ToPrimitive;
 
 #[derive(Clone, Debug)]
 struct Coords {
@@ -49,6 +50,12 @@ impl Coords {
     fn abs(&self) -> BigRational {
         let res = self.norm();
         Ratio::new(res.numer().sqrt(), res.denom().sqrt())
+    }
+
+    fn approximate(&mut self) {
+        self.x = Ratio::from_float(self.x.to_f64().unwrap()).unwrap();
+        self.y = Ratio::from_float(self.y.to_f64().unwrap()).unwrap();
+        self.z = Ratio::from_float(self.z.to_f64().unwrap()).unwrap();
     }
 }
 
@@ -156,6 +163,7 @@ impl Planet {
             change += -G.clone() * m.clone() * diff / cube;
         }
         self.location += change;
+        self.location.approximate();
     }
 
     fn loc(&self) -> BigInt {
@@ -178,10 +186,10 @@ fn main() {
 
     let mut earth = Planet::from_floats(5.97e24,  1.0, 0.0, 0.0);
     let mut moon = Planet::from_floats(7.342e22, 362600e3, 0.0, 0.0);
-    for i in [0, 1, 2].iter() {
+    for i in (0..1000) {
         moon.dot(&[&earth]);
         earth.dot(&[&moon]);
-        println!("moon: {:?}", moon);
-        println!("earth: {:?}", earth);
+        println!("moon: ({:?}, {:?})", moon.location.x.to_f64(), moon.location.y.to_f64());
+        println!("earth: ({:?}, {:?})", earth.location.x.to_f64(), earth.location.y.to_f64());
     }
 }
